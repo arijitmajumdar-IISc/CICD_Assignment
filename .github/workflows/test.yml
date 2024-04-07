@@ -1,4 +1,4 @@
-# test.yml
+# test.yml file
 name: Test Docker Image
 
 on:
