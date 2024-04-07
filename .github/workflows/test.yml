@@ -1,26 +1,32 @@
-name: Pull and Test Docker Image
-
+name: Test
+ 
 on:
-  pull_request:
-    branches:
-      - '*'
-
+  workflow_run:       
+    workflows: ["Train"]
+    types:
+      - completed
+ 
 jobs:
-  setup:
+  pull-and-run:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
-      - name: Checkout repository
+      - name: Check out the code
         uses: actions/checkout@v2
-
-  pull-and-test:
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
+ 
       - name: Pull Docker image
-        uses: actions/setup-python@v2
-        with:
-          image: ${{ secrets.REGISTRY_USERNAME }}/cicd-model:1.0:latest
-
-      - name: Run test
+        run: docker pull arijitiisc/cicd-model:latest
+ 
+      - name: Run Docker image and check score
+        id: test
         run: |
-          docker run --rm ${{ secrets.REGISTRY_USERNAME }}/cicd-model:1.0 python test.py
+          SCORE=$(docker run --rm  arijitiisc/cicd-model:latest)
+          echo "Score: $SCORE"
+          if (( $(echo "$SCORE > 0.35" | bc -l) )); then
+            echo "Success: Score is greater than 0.35"
+            echo "::set-output name=passed::true"
+          else
+            echo "Failure: Score is not greater than 0.35"
+            echo "::set-output name=passed::false"
+            exit 1
+          fi
