@@ -1,5 +1,5 @@
 # Use a Python base image (you can choose a specific Python version)
-FROM python:3.8
+FROM python:3.11.9
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -15,4 +15,4 @@ COPY train.py .
 COPY test.py .
 
 # Set the entry point to execute train.py followed by test.py
-CMD ["python", "train.py"]
+ENTRYPOINT ["python", "train.py"]
