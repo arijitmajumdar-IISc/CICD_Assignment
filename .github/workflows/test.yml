@@ -11,18 +11,24 @@ jobs:
   test:
     runs-on: windows-latest
 
+    env:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
       - name: Set up Docker
-        uses: docker/setup-docker@v2
+        uses: docker/login-action@v2
+        with:
+          username: ${{ env.DOCKER_USERNAME }}
+          password: ${{ env.DOCKER_PASSWORD }}
 
       - name: Pull Docker image
         run: |
-          docker login -u ${{ secrets.arijitiisc }} -p "${{ secrets.Neha@2023 }}"
-          docker pull ${{ secrets.arijitiisc }}/cicd-model:1.0
+          docker pull ${{ env.DOCKER_USERNAME }}/cicd-model:1.0
 
       - name: Run tests
         run: |
-          docker run --rm ${{ secrets.arijitiisc }}/cicd-model:1.0 python test.py
+          docker run --rm ${{ env.DOCKER_USERNAME }}/cicd-model:1.0 python test.py
