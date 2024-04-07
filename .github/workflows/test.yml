@@ -6,8 +6,14 @@ on:
       - '*'
 
 jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
   pull-and-test:
-    needs: build-and-push
+    needs: setup
     runs-on: ubuntu-latest
     steps:
       - name: Pull Docker image
