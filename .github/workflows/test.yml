@@ -1,13 +1,13 @@
-name: Test Docker Image
+name: Test
 
 on:
   workflow_run:
-    workflows: ["Build and Push Docker Image"]
+    workflows: ["Train"]
     types:
       - completed
 
 jobs:
-  test:
+   pull-and-run:
     runs-on: windows-latest
 
     env:
@@ -33,8 +33,8 @@ jobs:
           docker run --rm ${{ env.DOCKER_USERNAME }}/cicd-model:1.0 python test.py
 
     # Only run this job if the "Build and Push Docker Image" workflow is completed
-    if: github.event.workflow_run.event == 'workflow_run' && github.event.workflow_run.workflow == 'Build and Push Docker Image'
+    if: github.event.workflow_run.event == 'workflow_run' && github.event.workflow_run.workflow == 'Train'
 
-    # If "Build and Push Docker Image" completed successfully, proceed with the tests. 
+    # If "Train" completed successfully, proceed with the tests. 
     # If it failed, force fail the test job.
     continue-on-error: ${{ github.event.workflow_run.conclusion != 'success' }}
