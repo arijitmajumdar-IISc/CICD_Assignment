@@ -1,0 +1,27 @@
+name: Test Docker Image
+
+on:
+  workflow_run:
+    workflows: ["Build and Push Docker Image"]
+    types:
+      - completed
+
+jobs:
+  test:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker
+        uses: docker/setup-docker@v2
+
+      - name: Pull Docker image
+        run: |
+          docker login -u ${{ secrets.arijitiisc }} -p ${{ secrets.Neha@2023 }}
+          docker pull ${{ secrets.arijitiisc }}/cicd-model:1.0
+
+      - name: Run tests
+        run: |
+          docker run --rm ${{ secrets.arijitiisc }}/cicd-model:1.0 python test.py

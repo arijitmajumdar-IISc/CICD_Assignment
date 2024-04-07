@@ -1,0 +1,24 @@
+name: Build and Push Docker Image
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker
+        uses: docker/setup-docker@v2
+
+      - name: Build Docker image
+        run: |
+          docker build -t cicd-model:1.0 .
+          docker login -u ${{ secrets.arijitiisc }} -p ${{ secrets.Neha@2023 }}
+          docker tag cicd-model:1.0 ${{ secrets.arijitiisc }}/cicd-model:1.0
+          docker push ${{ secrets.arijitiisc }}/cicd-model:1.0
