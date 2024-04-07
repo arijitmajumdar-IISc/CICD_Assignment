@@ -1,14 +1,13 @@
-# test.yml file
-name: Test Docker Image
+name: Test
 
 on:
   workflow_run:
-    workflows: ["Build and Push Docker Image"]
+    workflows: ["Train"]
     types:
       - completed
 
 jobs:
-  test:
+  pull-and-run:
     runs-on: windows-latest
 
     env:
@@ -30,8 +29,13 @@ jobs:
           docker pull ${{ env.DOCKER_USERNAME }}/cicd-model:1.0
 
       - name: Run tests
+        id: test
         run: |
-          docker run --rm ${{ env.DOCKER_USERNAME }}/cicd-model:1.0 python test.py
-
-    # Only run this job if the "Build and Push Docker Image" workflow succeeded
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+          OUTPUT=$(docker run --rm ${{ env.DOCKER_USERNAME }}/cicd-model:1.0 python test.py)
+          echo "Score:"
+          echo "$OUTPUT"
+          if (( $(echo "$OUTPUT > 0.35" | bc -l) )); then
+            echo "Sufficient Accuracy"
+          else
+            echo "Insufficient Accuracy" && exit 1
+          fi
