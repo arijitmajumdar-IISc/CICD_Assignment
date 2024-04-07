@@ -13,6 +13,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the entire directory containing the data into the container
 COPY data/ data/
 
+# Copy the trained model file into the container
+COPY model.pkl .
+
 # Copy train.py and test.py into the container
 COPY train.py .
 COPY test.py .
