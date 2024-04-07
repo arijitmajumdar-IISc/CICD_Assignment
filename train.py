@@ -1,4 +1,5 @@
 import pandas as pd
+import non-existing-module
 from sklearn.ensemble import RandomForestClassifier
 import pickle
 import numpy as np
