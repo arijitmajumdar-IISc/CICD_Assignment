@@ -10,12 +10,6 @@ jobs:
   pull-and-run:
     runs-on: windows-latest
 
-    env:
-      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-
-    needs: train
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -23,20 +17,27 @@ jobs:
       - name: Set up Docker
         uses: docker/login-action@v2
         with:
-          username: ${{ env.DOCKER_USERNAME }}
-          password: ${{ env.DOCKER_PASSWORD }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Pull Docker image
         run: |
           docker pull ${{ env.DOCKER_USERNAME }}/cicd-model:1.0
 
       - name: Run tests
+        id: test
         run: |
-          docker run --rm ${{ env.DOCKER_USERNAME }}/cicd-model:1.0 python test.py
+          OUTPUT=$(docker run --rm ${{ env.DOCKER_USERNAME }}/cicd-model:1.0 python test.py)
+          echo "Score:"
+          echo "$OUTPUT"
+          if [[ $(echo "$OUTPUT > 0.5" | bc -l) == 1 ]]; then echo "Sufficient Accuracy"; else echo "Insufficient Accuracy" && exit 1; fi
 
-    # Always run this job after "Train" workflow is completed
+    # Always run this job, regardless of the "Train" workflow status
     if: github.event.workflow_run.event == 'workflow_run' && github.event.workflow_run.workflow == 'Train'
 
-    # If "Train" completed successfully, proceed with the tests. 
-    # If it failed, force fail the test job.
-    continue-on-error: true
+    # If "Train" failed, force fail the test job
+    continue-on-error: ${{ github.event.workflow_run.conclusion != 'success' }}
+
+    # Only succeed if the accuracy is above 0.5
+    outputs:
+      status: ${{ steps.test.outputs.status }}
