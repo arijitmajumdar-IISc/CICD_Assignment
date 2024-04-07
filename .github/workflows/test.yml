@@ -1,37 +1,48 @@
-# test.yml file
 name: Test Docker Image
 
 on:
+  push:
+    branches:
+      - main
   workflow_run:
     workflows: ["Build and Push Docker Image"]
     types:
       - completed
+    branches:
+      - main
 
 jobs:
   test:
+    needs: build
     runs-on: windows-latest
 
-    env:
-      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+    if: github.event_name == 'workflow_run' && github.event.workflow == 'Build and Push Docker Image' && github.event.workflow_run.conclusion != 'queued'
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Docker
-        uses: docker/login-action@v2
+      - name: Check train.yml status
+        id: check_train_status
+        uses: actions/github-script@v4
         with:
-          username: ${{ env.DOCKER_USERNAME }}
-          password: ${{ env.DOCKER_PASSWORD }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const payload = context.payload;
+            const status = payload.workflow_run.conclusion;
+            return status;
 
-      - name: Pull Docker image
+      - name: Triggered by train.yml
+        if: steps.check_train_status.outputs.status == 'success'
+        run: echo "Train workflow passed, proceeding with tests."
+
+      - name: Triggered by train.yml
+        if: steps.check_train_status.outputs.status == 'failure'
         run: |
-          docker pull ${{ env.DOCKER_USERNAME }}/cicd-model:1.0
+          echo "Train workflow failed, so not proceeding"
+          exit 1
 
-      - name: Run tests
+      - name: Run tests and check score
+        if: steps.check_train_status.outputs.status == 'success'
         run: |
-          docker run --rm ${{ env.DOCKER_USERNAME }}/cicd-model:1.0 python test.py
-
-    # Only run this job if the "Build and Push Docker Image" workflow succeeded
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+          OUTPUT=$(docker run --rm ${{ env.DOCKER_USERNAME }}/cicd-model:1.0 python test.py)
+          echo "Score:"
+          echo "$OUTPUT"
+          if [[ $(echo "$OUTPUT > 0.35" | bc -l) == 1 ]]; then echo "Sufficient Accuracy"; else echo "Insufficient Accuracy" && exit 1; fi
