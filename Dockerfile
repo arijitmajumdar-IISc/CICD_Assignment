@@ -17,5 +17,8 @@ COPY data/ data/
 COPY train.py .
 COPY test.py .
 
-# Set the entry point to execute train.py followed by test.py
-CMD ["python", "train.py"]
+# Run train.py to generate the model.pkl file
+RUN python train.py
+
+# Set the entry point to execute test.py
+CMD ["python", "test.py"]
