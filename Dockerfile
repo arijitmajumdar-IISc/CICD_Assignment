@@ -10,9 +10,12 @@ COPY requirements.txt .
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copy the entire directory containing the data into the container
+COPY data/ data/
+
 # Copy train.py and test.py into the container
 COPY train.py .
 COPY test.py .
 
 # Set the entry point to execute train.py followed by test.py
-ENTRYPOINT ["python", "train.py"]
+CMD ["python", "train.py"]
