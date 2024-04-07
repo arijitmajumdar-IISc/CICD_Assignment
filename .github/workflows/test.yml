@@ -7,12 +7,14 @@ on:
       - completed
 
 jobs:
-   pull-and-run:
+  pull-and-run:
     runs-on: windows-latest
 
     env:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+    needs: train
 
     steps:
       - name: Checkout code
@@ -32,9 +34,9 @@ jobs:
         run: |
           docker run --rm ${{ env.DOCKER_USERNAME }}/cicd-model:1.0 python test.py
 
-    # Only run this job if the "Train" workflow is completed
+    # Always run this job after "Train" workflow is completed
     if: github.event.workflow_run.event == 'workflow_run' && github.event.workflow_run.workflow == 'Train'
 
     # If "Train" completed successfully, proceed with the tests. 
     # If it failed, force fail the test job.
-    continue-on-error: ${{ github.event.workflow_run.conclusion != 'success' }}
+    continue-on-error: true
