@@ -1,40 +1,20 @@
-name: Test
+name: Pull and Test Docker Image
 
 on:
-  workflow_run:
-    workflows: ["Train"]
-    types:
-      - completed
+  pull_request:
+    branches:
+      - '*'
 
 jobs:
-   pull-and-run:
-    runs-on: windows-latest
-
-    env:
-      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-
+  pull-and-test:
+    needs: build-and-push
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Docker
-        uses: docker/login-action@v2
-        with:
-          username: ${{ env.DOCKER_USERNAME }}
-          password: ${{ env.DOCKER_PASSWORD }}
-
       - name: Pull Docker image
+        uses: actions/setup-python@v2
+        with:
+          image: ${{ secrets.REGISTRY_USERNAME }}/cicd-model:1.0:latest
+
+      - name: Run test
         run: |
-          docker pull ${{ env.DOCKER_USERNAME }}/cicd-model:1.0
-
-      - name: Run tests
-        run: |
-          docker run --rm ${{ env.DOCKER_USERNAME }}/cicd-model:1.0 python test.py
-
-    # Only run this job if the "Train" workflow is completed
-    if: github.event.workflow_run.event == 'workflow_run' && github.event.workflow_run.workflow == 'Train'
-
-    # If "Train" completed successfully, proceed with the tests. 
-    # If it failed, force fail the test job.
-    continue-on-error: ${{ github.event.workflow_run.conclusion != 'success' }}
+          docker run --rm ${{ secrets.REGISTRY_USERNAME }}/cicd-model:1.0 python test.py
