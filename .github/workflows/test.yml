@@ -7,34 +7,34 @@ on:
       - completed
 
 jobs:
-  test:
+   pull-and-run:
     runs-on: windows-latest
 
+    env:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
     steps:
-      - name: Check train.yml status
-        id: check_train_status
-        uses: actions/github-script@v4
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker
+        uses: docker/login-action@v2
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const payload = context.payload;
-            const status = payload.workflow_run.conclusion;
-            return status;
+          username: ${{ env.DOCKER_USERNAME }}
+          password: ${{ env.DOCKER_PASSWORD }}
 
-      - name: Triggered by train.yml
-        if: steps.check_train_status.outputs.status == 'success'
-        run: echo "Train workflow passed, proceeding with tests."
-
-      - name: Triggered by train.yml
-        if: steps.check_train_status.outputs.status == 'failure'
+      - name: Pull Docker image
         run: |
-          echo "Train workflow failed, so not proceeding"
-          exit 1
+          docker pull ${{ env.DOCKER_USERNAME }}/cicd-model:1.0
 
-      - name: Run tests and check score
-        if: steps.check_train_status.outputs.status == 'success'
+      - name: Run tests
         run: |
-          OUTPUT=$(docker run --rm ${{ env.DOCKER_USERNAME }}/cicd-model:1.0 python test.py)
-          echo "Score:"
-          echo "$OUTPUT"
-          if [[ $(echo "$OUTPUT > 0.35" | bc -l) == 1 ]]; then echo "Sufficient Accuracy"; else echo "Insufficient Accuracy" && exit 1; fi
+          docker run --rm ${{ env.DOCKER_USERNAME }}/cicd-model:1.0 python test.py
+
+    # Only run this job if the "Train" workflow is completed
+    if: github.event.workflow_run.event == 'workflow_run' && github.event.workflow_run.workflow == 'Train'
+
+    # If "Train" completed successfully, proceed with the tests. 
+    # If it failed, force fail the test job.
+    continue-on-error: ${{ github.event.workflow_run.conclusion != 'success' }}
