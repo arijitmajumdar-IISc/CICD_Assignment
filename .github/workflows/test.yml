@@ -5,12 +5,13 @@ on:
     workflows: ["Build and Push Docker Image"]
     types:
       - completed
-  pull_request: # Add pull_request event to trigger on pull requests
+  pull_request:
     branches:
       - main
 
 jobs:
   test:
+    needs: build
     runs-on: windows-latest
 
     steps:
