@@ -1,16 +1,15 @@
 import pandas as pd
-from sklearn.ensemble import RandomForestClassifier  # Import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
 import pickle
 import numpy as np
 
-# Load your data
 df = pd.read_csv("data/test.csv")
 X = df.drop(columns=['Disease']).to_numpy()
 y = df['Disease'].to_numpy()
+labels = np.sort(np.unique(y))
+y = np.array([np.where(labels == x) for x in y]).flatten()
 
-# Initialize and fit the Random Forest model
-model = RandomForestClassifier(n_estimators=100, max_depth=10)  # Adjust hyperparameters as needed
-model.fit(X, y)
+with open("model.pkl", 'rb') as f:
+    model = pickle.load(f)
 
-# Evaluate the model
 print(round(model.score(X, y), 3))
