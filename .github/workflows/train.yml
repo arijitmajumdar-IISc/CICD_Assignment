@@ -1,4 +1,3 @@
-# train.yml
 name: Build and Push Docker Image
 
 on:
