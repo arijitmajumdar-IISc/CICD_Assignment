@@ -26,6 +26,6 @@ jobs:
           docker push ${{ secrets.DOCKER_USERNAME }}/cicd-model:1.0
 
       - name: Trigger test workflow
-        uses: peter-evans/workflow-dispatch@v1
+        uses: actions/workflow-dispatch@v2
         with:
           workflow: Test Docker Image
