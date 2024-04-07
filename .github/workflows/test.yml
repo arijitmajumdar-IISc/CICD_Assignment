@@ -20,7 +20,7 @@ jobs:
 
       - name: Pull Docker image
         run: |
-          docker login -u ${{ secrets.arijitiisc }} -p ${{ secrets.Neha@2023 }}
+          docker login -u ${{ secrets.arijitiisc }} -p "${{ secrets.Neha@2023 }}"
           docker pull ${{ secrets.arijitiisc }}/cicd-model:1.0
 
       - name: Run tests
