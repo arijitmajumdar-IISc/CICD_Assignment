@@ -1,3 +1,4 @@
+# build.yml
 name: Build and Push Docker Image
 
 on:
@@ -9,6 +10,10 @@ jobs:
   build:
     runs-on: windows-latest
 
+    env:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -19,6 +24,6 @@ jobs:
       - name: Build Docker image
         run: |
           docker build -t cicd-model:1.0 .
-          docker login -u ${{ secrets.arijitiisc }} -p "${{ secrets['Neha@2023'] }}"
-          docker tag cicd-model:1.0 ${{ secrets.arijitiisc }}/cicd-model:1.0
-          docker push ${{ secrets.arijitiisc }}/cicd-model:1.0
+          docker login -u ${{ env.DOCKER_USERNAME }} -p ${{ env.DOCKER_PASSWORD }}
+          docker tag cicd-model:1.0 ${{ env.DOCKER_USERNAME }}/cicd-model:1.0
+          docker push ${{ env.DOCKER_USERNAME }}/cicd-model:1.0
