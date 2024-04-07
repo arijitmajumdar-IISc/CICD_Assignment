@@ -38,4 +38,4 @@ jobs:
             echo "Sufficient Accuracy"
           else
             echo "Insufficient Accuracy" && exit 1
-          fi
+          fi    
