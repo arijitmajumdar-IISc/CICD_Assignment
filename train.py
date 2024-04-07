@@ -1,18 +1,18 @@
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 import pickle
+import numpy as np
 
-# Load the dataset
 df = pd.read_csv("data/train.csv")
+X = df.drop(columns=['Disease']).to_numpy()
+y = df['Disease'].to_numpy()
+labels = np.sort(np.unique(y))
+y = np.array([np.where(labels == x) for x in y]).flatten()
 
-# Separate features (X) and target variable (y)
-X = df.drop(columns=['Disease'])
-y = df['Disease']
+# Initialize the Random Forest Classifier
+model = RandomForestClassifier(n_estimators=100, random_state=42)
 
-# Initialize the RandomForestClassifier
-model = RandomForestClassifier()
-
-# Train the model
+# Fit the model to the data
 model.fit(X, y)
 
 # Save the trained model to a file
