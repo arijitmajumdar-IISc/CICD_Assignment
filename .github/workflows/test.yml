@@ -21,10 +21,12 @@ jobs:
 
       - name: Set up Docker
         uses: docker/login-action@v2
+        with:
+          username: ${{ env.DOCKER_USERNAME }}
+          password: ${{ env.DOCKER_PASSWORD }}
 
       - name: Pull Docker image
         run: |
-          docker login -u ${{ env.DOCKER_USERNAME }} -p ${{ env.DOCKER_PASSWORD }}
           docker pull ${{ env.DOCKER_USERNAME }}/cicd-model:1.0
 
       - name: Run tests
