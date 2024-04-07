@@ -1,4 +1,5 @@
 import pandas as pd
+import non_existent_module #It will ensure both actions will fail
 from sklearn.ensemble import RandomForestClassifier
 import pickle
 import numpy as np
