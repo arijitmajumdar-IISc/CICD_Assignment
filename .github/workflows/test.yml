@@ -32,7 +32,7 @@ jobs:
         run: |
           docker run --rm ${{ env.DOCKER_USERNAME }}/cicd-model:1.0 python test.py
 
-    # Only run this job if the "Build and Push Docker Image" workflow is completed
+    # Only run this job if the "Train" workflow is completed
     if: github.event.workflow_run.event == 'workflow_run' && github.event.workflow_run.workflow == 'Train'
 
     # If "Train" completed successfully, proceed with the tests. 
