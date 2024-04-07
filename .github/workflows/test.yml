@@ -8,6 +8,8 @@ on:
     workflows: ["Build and Push Docker Image"]
     types:
       - completed
+    branches:
+      - main
 
 jobs:
   test:
