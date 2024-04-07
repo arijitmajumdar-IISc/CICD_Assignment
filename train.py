@@ -1,4 +1,5 @@
 import pandas as pd
+#Used LogisticRegression model so the accuracy comes below 0.35 and test.yml fails
 from sklearn.linear_model import LogisticRegression
 import pickle
 import numpy as np
