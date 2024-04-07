@@ -35,9 +35,8 @@ jobs:
     # Always run this job, regardless of the "Train" workflow status
     if: github.event.workflow_run.event == 'workflow_run' && github.event.workflow_run.workflow == 'Train'
 
-    # If "Train" failed, force fail the test job
-    continue-on-error: ${{ github.event.workflow_run.conclusion != 'success' }}
-
-    # Only succeed if the accuracy is above 0.5
-    outputs:
-      status: ${{ steps.test.outputs.status }}
+    # Force fail the job if the "Train" workflow fails
+    steps:
+      - name: Force fail if "Train" workflow failed
+        if: github.event.workflow_run.conclusion == 'failure'
+        run: exit 1
