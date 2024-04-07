@@ -29,12 +29,16 @@ jobs:
           docker pull ${{ env.DOCKER_USERNAME }}/cicd-model:1.0
  
       - name: Run tests
+        id: test
         run: |
-          docker run --rm ${{ env.DOCKER_USERNAME }}/cicd-model:1.0 python test.py
+          OUTPUT=$(docker run --rm ${{ env.DOCKER_USERNAME }}/cicd-model:1.0 python test.py)
+          echo "Score:"
+          echo "$OUTPUT"
+          if [[ $(echo "$OUTPUT > 0.5" | bc -l) == 1 ]]; then echo "Sufficient Accuracy"; else echo "Insufficient Accuracy" && exit 1; fi
  
     # Only run this job if the "Build and Push Docker Image" workflow is completed
     if: github.event.workflow_run.event == 'workflow_run' && github.event.workflow_run.workflow == 'Train'
  
     # If "Train" completed successfully, proceed with the tests. 
     # If it failed, force fail the test job.
-    continue-on-error: ${{ github.event.workflow_run.conclusion != 'success' }}
+    continue-on-error: ${{ github.event.workflow_run.outputs.build_status != 'success' }}
