@@ -25,16 +25,4 @@ jobs:
           docker tag cicd-model:1.0 ${{ secrets.DOCKER_USERNAME }}/cicd-model:1.0
           docker push ${{ secrets.DOCKER_USERNAME }}/cicd-model:1.0
 
-      - name: Trigger test workflow
-        uses: actions/github-script@v4
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const { data: workflows } = await github.actions.listRepoWorkflows({ owner: context.repo.owner, repo: context.repo.repo });
-            const workflow = workflows.find(workflow => workflow.name === 'Test Docker Image');
-            await github.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: workflow.id,
-              ref: context.ref
-            });
+  
