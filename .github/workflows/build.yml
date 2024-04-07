@@ -1,4 +1,4 @@
-# Creating a build docker image
+# build.yml
 name: Build and Push Docker Image
 
 on:

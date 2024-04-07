@@ -1,4 +1,4 @@
-# Creating a test docker image
+# test.yml
 name: Test Docker Image
 
 on:
