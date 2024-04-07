@@ -1,11 +1,11 @@
-name: Test Docker Image
+name: Test
 
 on:
   push:
     branches:
       - main
   workflow_run:
-    workflows: ["Build and Push Docker Image"]
+    workflows: ["Train"]
     types:
       - completed
     branches:
@@ -16,7 +16,7 @@ jobs:
     needs: build
     runs-on: windows-latest
 
-    if: github.event_name == 'workflow_run' && github.event.workflow == 'Build and Push Docker Image' && github.event.workflow_run.conclusion != 'queued'
+    if: github.event_name == 'workflow_run' && github.event.workflow == 'Train' && github.event.workflow_run.conclusion != 'queued'
 
     steps:
       - name: Check train.yml status
