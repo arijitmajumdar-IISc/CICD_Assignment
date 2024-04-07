@@ -7,8 +7,9 @@ on:
       - completed
 
 jobs:
-   pull-and-run:
+  pull-and-run:
     runs-on: windows-latest
+    needs: build
 
     env:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
@@ -30,7 +31,7 @@ jobs:
 
       - name: Run tests
         run: |
-          docker run --rm ${{ env.DOCKER_USERNAME }}/cicd-model:1.0 python test.py
+          OUTPUT=$(docker run --rm ${{ env.DOCKER_USERNAME }}/cicd-model:1.0 python test.py)
           echo "Score:"
           echo "$OUTPUT"
-          if [[ $(echo "$OUTPUT > 0.35" | bc -l) == 1 ]]; then echo "Sufficient Accuracy"; else echo "Insufficient Accuracy" && exit 1; fi
+          if [[ $(echo "$OUTPUT > 0.35" | bc -l) == 1 ]]; then echo "Sufficient Accuracy"; else echo "Insufficient Accuracy" && exit 1; fi  
