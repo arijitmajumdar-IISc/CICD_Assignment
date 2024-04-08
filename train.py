@@ -1,5 +1,6 @@
 import pandas as pd
-#Used LogisticRegression model so the accuracy comes below 0.35 and test.yml fails
+# Intentionally creating a syntax error so both workflows does not work
+import non_existent_model
 from sklearn.linear_model import LogisticRegression
 import pickle
 import numpy as np
